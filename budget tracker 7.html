@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e6e6fa; /* Lavender */
+        }
+        .title-container {
+            border: 2px solid #ff69b4; /* Hot Pink */
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #f0f8ff; /* Alice Blue */
+        }
+        h1 {
+            text-align: center;
+            margin: 0;
+            color: #ff69b4; /* Hot Pink */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #add8e6; /* Light Blue */
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #ff69b4; /* Hot Pink */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #ff1493; /* Deep Pink */
+        }
+        p {
+            color: #9370db; /* Medium Purple */
+            text-align: center;
+            margin-top: 20px;
+        }
+        #remainingBudget {
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #ffcccc; /* Light Red */
+            color: #ff0000; /* Red */
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="title-container">
+        <h1>「 ✦ Budget Tracker ✦ 」</h1>
+    </div>
+    <label for="budgetAmount" style="color: #ff69b4;">Enter Budget Amount:</label>
+    <input type="number" id="budgetAmount" name="budgetAmount" required>
+    <label for="currency" style="color: #ff69b4;">Choose Currency:</label>
+    <select id="currency" name="currency">
+        <option value="₱">PHP</option>
+        <option value="$">USD</option>
+        <option value="€">EUR</option>
+        <option value="£">GBP</option>
+        <option value="¥">JPY</option>
+        <option value="AU$">AUD</option>
+    </select>
+    <button id="addBudgetBtn">Add Budget</button>
+
+    <form id="budgetForm">
+        <label for="item" style="color: #ff69b4;">Item:</label>
+        <input type="text" id="item" name="item" required>
+        <label for="amount" style="color: #ff69b4;">Amount:</label>
+        <input type="number" id="amount" name="amount" required>
+        <label for="category" style="color: #ff69b4;">Category:</label>
+        <select id="category" name="category">
+            <option value="food">Food</option>
+            <option value="clothing">Clothing</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="Misc">Miscellaneous</option>
+            <!-- Add more categories as needed -->
+        </select>
+        <button type="submit">Add</button>
+    </form>
+    <table id="budgetTable">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>    </th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Budget items will be added here dynamically -->
+        </tbody>
+    </table>
+
+    <p style="color: #9370db;">Remaining Budget: <span id="currencySymbol"></span><span id="remainingBudget">0.00</span></p>
+    <p style="color: #9370db;">Total Expenses: <span id="totalExpenses">0.00</span></p>
+
+    <div id="warning" class="warning">( ˶°ㅁ°)!! Out of budget!</div>
+
+    <script>
+        document.getElementById("addBudgetBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            let budgetAmount = parseFloat(document.getElementById("budgetAmount").value);
+            let currencySymbol = document.getElementById("currency").value;
+            document.getElementById("currencySymbol").textContent = currencySymbol; // Update currency symbol in display
+            document.getElementById("remainingBudget").textContent = budgetAmount.toFixed(2);
+        });
+
+        document.getElementById("budgetForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let item = document.getElementById("item").value;
+            let amount = parseFloat(document.getElementById("amount").value);
+            let currency = document.getElementById("currency").value;
+            let category = document.getElementById("category").value; // Get selected category
+
+            if (item && amount) {
+                addItemToTable(item, amount, currency, category); // Pass category to the function
+                document.getElementById("item").value = "";
+                document.getElementById("amount").value = "";
+                updateBudget();
+                updateTotalExpenses();
+            } else {
+                alert("Please enter both item and amount.");
+            }
+        });
+
+        function addItemToTable(item, amount, currency, category) {
+            let tableBody = document.getElementById("budgetTable").getElementsByTagName("tbody")[0];
+            let newRow = tableBody.insertRow();
+            let itemCell = newRow.insertCell(0);
+            let amountCell = newRow.insertCell(1);
+            let categoryCell = newRow.insertCell(2);
+            itemCell.innerHTML = item;
+            amountCell.innerHTML = currency + ' ' + amount.toFixed(2);
+            categoryCell.innerHTML = category;
+        }
+
+        function updateBudget() {
+            let budgetAmount = parseFloat(document.getElementById("budgetAmount").value);
+            let totalSpent = 0;
+            let rows = document.getElementById("budgetTable").getElementsByTagName("tbody")[0].rows;
+            
+            for (let i = 0; i < rows.length; i++) {
+                let amountString = rows[i].cells[1].innerHTML;
+                let currency = amountString.substring(0, 1); // Extract currency symbol
+                let amount = parseFloat(amountString.substring(2)); // Extract amount without currency symbol
+                totalSpent += amount;
+            }
+
+            let remainingBudget = budgetAmount - totalSpent;
+            let currencySymbol = document.getElementById("currency").value;
+            document.getElementById("currencySymbol").textContent = currencySymbol; // Update currency symbol in display
+            document.getElementById("remainingBudget").textContent = remainingBudget.toFixed(2);
+            document.getElementById("remainingBudget").style.color = remainingBudget < 0 ? "#ff0000" : "#000000"; // Change color to red if negative
+            document.getElementById("warning").style.display = remainingBudget < 0 ? "block" : "none"; // Show warning if negative
+        }
+
+        function trackTotalExpenses() {
+            let totalExpenses = 0;
+            let rows = document.getElementById("budgetTable").getElementsByTagName("tbody")[0].rows;
+
+            for (let i = 0; i < rows.length; i++) {
+                let amountString = rows[i].cells[1].innerHTML;
+                let amount = parseFloat(amountString.substring(2)); // Extract amount without currency symbol
+                totalExpenses += amount;
+            }
+
+            return totalExpenses.toFixed(2);
+        }
+
+        function updateTotalExpenses() {
+            let totalExpenses = trackTotalExpenses();
+            let currencySymbol = document.getElementById("currency").value;
+            document.getElementById("totalExpenses").textContent = currencySymbol + totalExpenses;
+        }
+
+        // Call updateBudget initially to set initial values
+        updateBudget();
+    </script>
+</body>
+</html>
