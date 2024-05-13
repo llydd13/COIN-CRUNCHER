@@ -3,38 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Tracker</title>
+    <title>Coin Cruncher</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #e6e6fa; /* Lavender */
+            background-color: #000000; 
+            color: #b762fd; 
         }
         .title-container {
-            border: 2px solid #ff69b4; /* Hot Pink */
+            border: 2px solid #b762fd; 
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 20px;
-            background-color: #f0f8ff; /* Alice Blue */
+            background-color: #000000; 
         }
         h1 {
             text-align: center;
             margin: 0;
-            color: #ff69b4; /* Hot Pink */
+            color: #b762fd; 
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #fff;
+            background-color: #000000; 
         }
         th, td {
             padding: 10px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #000000; 
             text-align: left;
         }
         th {
-            background-color: #add8e6; /* Light Blue */
+            background-color: #590061; 
         }
         input[type="text"], input[type="number"], select {
             width: 100%;
@@ -44,18 +45,18 @@
             box-sizing: border-box;
         }
         button {
-            background-color: #ff69b4; /* Hot Pink */
-            color: white;
+            background-color: #b762fd; 
+            color: #000033; 
             padding: 10px 20px;
             border: none;
             cursor: pointer;
             margin-bottom: 10px;
         }
         button:hover {
-            background-color: #ff1493; /* Deep Pink */
+            background-color: #b762fd; 
         }
         p {
-            color: #9370db; /* Medium Purple */
+            color: #b762fd; 
             text-align: center;
             margin-top: 20px;
         }
@@ -63,8 +64,8 @@
             font-weight: bold;
         }
         .warning {
-            background-color: #ffcccc; /* Light Red */
-            color: #ff0000; /* Red */
+            background-color: #ff0000; 
+            color: #ffffff; 
             padding: 10px;
             border-radius: 5px;
             margin-top: 20px;
@@ -75,11 +76,11 @@
 </head>
 <body>
     <div class="title-container">
-        <h1>「 ✦ Budget Tracker ✦ 」</h1>
+        <h1>「 ✦ Coin Cruncher ✦ 」</h1>
     </div>
-    <label for="budgetAmount" style="color: #ff69b4;">Enter Budget Amount:</label>
+    <label for="budgetAmount" style="color: #b762fd;">Enter Budget Amount:</label>
     <input type="number" id="budgetAmount" name="budgetAmount" required>
-    <label for="currency" style="color: #ff69b4;">Choose Currency:</label>
+    <label for="currency" style="color: #b762fd;">Choose Currency:</label>
     <select id="currency" name="currency">
         <option value="₱">PHP</option>
         <option value="$">USD</option>
@@ -91,11 +92,11 @@
     <button id="addBudgetBtn">Add Budget</button>
 
     <form id="budgetForm">
-        <label for="item" style="color: #ff69b4;">Item:</label>
+        <label for="item" style="color: #b762fd;">Item:</label>
         <input type="text" id="item" name="item" required>
-        <label for="amount" style="color: #ff69b4;">Amount:</label>
-        <input type="number" id="amount" name="amount" required>
-        <label for="category" style="color: #ff69b4;">Category:</label>
+        <label for="amount" style="color: #b762fd;">Amount:</label>
+        <input type="number" id="amount" name="amount" step="0.01" required> <!-- Allow decimal values for cents -->
+        <label for="category" style="color: #b762fd;">Category:</label>
         <select id="category" name="category">
             <option value="food">Food</option>
             <option value="clothing">Clothing</option>
@@ -109,7 +110,7 @@
         <thead>
             <tr>
                 <th>Item</th>
-                <th>    </th>
+                <th>Amount</th>
                 <th>Category</th>
             </tr>
         </thead>
@@ -118,8 +119,9 @@
         </tbody>
     </table>
 
-    <p style="color: #9370db;">Remaining Budget: <span id="currencySymbol"></span><span id="remainingBudget">0.00</span></p>
-    <p style="color: #9370db;">Total Expenses: <span id="totalExpenses">0.00</span></p>
+    <p>Total Items Bought: <span id="totalItemsBought">0</span></p>
+    <p>Remaining Budget: <span id="currencySymbol"></span><span id="remainingBudget">0.00</span></p>
+    <p>Total Expenses: <span id="totalExpenses">0.00</span></p>
 
     <div id="warning" class="warning">( ˶°ㅁ°)!! Out of budget!</div>
 
@@ -159,13 +161,15 @@
             itemCell.innerHTML = item;
             amountCell.innerHTML = currency + ' ' + amount.toFixed(2);
             categoryCell.innerHTML = category;
+            
+            updateTotalItemsBought(); // Call function to update total items bought
         }
 
         function updateBudget() {
             let budgetAmount = parseFloat(document.getElementById("budgetAmount").value);
             let totalSpent = 0;
             let rows = document.getElementById("budgetTable").getElementsByTagName("tbody")[0].rows;
-            
+
             for (let i = 0; i < rows.length; i++) {
                 let amountString = rows[i].cells[1].innerHTML;
                 let currency = amountString.substring(0, 1); // Extract currency symbol
@@ -177,7 +181,10 @@
             let currencySymbol = document.getElementById("currency").value;
             document.getElementById("currencySymbol").textContent = currencySymbol; // Update currency symbol in display
             document.getElementById("remainingBudget").textContent = remainingBudget.toFixed(2);
-            document.getElementById("remainingBudget").style.color = remainingBudget < 0 ? "#ff0000" : "#000000"; // Change color to red if negative
+            
+            // Change font color based on remaining budget
+            document.getElementById("remainingBudget").style.color = remainingBudget < 0 ? "#ff0000" : "#62d9fd"; // Red if negative, default neon green otherwise
+            
             document.getElementById("warning").style.display = remainingBudget < 0 ? "block" : "none"; // Show warning if negative
         }
 
@@ -198,6 +205,11 @@
             let totalExpenses = trackTotalExpenses();
             let currencySymbol = document.getElementById("currency").value;
             document.getElementById("totalExpenses").textContent = currencySymbol + totalExpenses;
+        }
+        
+        function updateTotalItemsBought() {
+            let totalItemsBought = document.getElementById("budgetTable").getElementsByTagName("tbody")[0].rows.length;
+            document.getElementById("totalItemsBought").textContent = totalItemsBought;
         }
 
         // Call updateBudget initially to set initial values
